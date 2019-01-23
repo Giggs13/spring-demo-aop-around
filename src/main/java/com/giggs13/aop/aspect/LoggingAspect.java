@@ -2,10 +2,12 @@ package com.giggs13.aop.aspect;
 
 import com.giggs13.aop.entity.Account;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,5 +63,20 @@ public class LoggingAspect {
     private void afterFinallyFindAccountsAdvice(JoinPoint joinPoint) {
         String method = joinPoint.getSignature().toShortString();
         System.out.println("\n<--- Executing @After advice on a method " + method);
+    }
+
+    @Around("execution(* com.giggs13.aop.service.*.getFortune(..))")
+    private Object aroundGetFortune(ProceedingJoinPoint proceedingJoinPoint)
+            throws Throwable {
+        String method = proceedingJoinPoint.getSignature().toShortString();
+        System.out.println("\n<--- Executing @Around advice on a method " + method);
+
+        StopWatch watcher = new StopWatch();
+        watcher.start();
+        Object result = proceedingJoinPoint.proceed();
+        watcher.stop();
+        System.out.println("\n<--- Duration: " + watcher.getTotalTimeMillis());
+
+        return result;
     }
 }
